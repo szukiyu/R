@@ -1,52 +1,19 @@
+
 library(Rcpp)
+Sys.setenv("PKG_CXXFLAGS"="-std=c++11 -I/home/suzuki/tensorflow/ -I/home/suzuki/tensorflow/bazel-tensorflow/external/eigen_archive/ -I/home/suzuki/tensorflow/bazel-tensorflow/external/eigen_archive/eigen-eigen-f3a13643ac1f/ -I/home/suzuki/tensorflow/bazel-genfiles/ -I/home/suzuki/tensorflow/bazel-tensorflow/external/protobuf/src/")
+
 require(inline)
 
-plug <- Rcpp:::Rcpp.plugin.maker(include.before = "#include </home/suzuki/tensorflow/tensorflow/loader/loader.h>",libs ="-L/home/suzuki/tensorflow/bazel-bin/tensorflow/loader -lloader")
+plug <- Rcpp:::Rcpp.plugin.maker(include.before = "#include <tensorflow/loader/loader.h>"
+                                 ,libs = paste("-L/home/suzuki/tensorflow/bazel-bin/tensorflow/loader -lloader", 
+                                               "-L/home/suzuki/temp -ltensorflow"))
 registerPlugin("loader", plug )
 
 helloworld<- cxxfunction(
   signature(xIn="numeric"),
   body <- '
-  
-  
-  #include <fstream> 
-  #include <iostream>
-  #include <iomanip>
-  #include <sstream>
-  #include <string>
-  #include <vector>
-  #include <iterator>
-  #include <memory>
-  #include <stdio.h>
- 
-
-  using namespace tensorflow;
-  
-  int b_size = 15; // number of minibatch                                                                 
-  int n_step = 16; // size of minibatch                                                                   
-
-  std::vector<std::vector<double> > X_test_norm;
-  std::vector<double> y_test_norm;
-  load_dataset("/home/suzuki/LSTM_tsc-master/data/TEST_batch2000", X_test_norm, y_test_norm);
-  
-  // Initialize a tensorflow session                                                                      
-  Session* session;
-  Status status = NewSession(SessionOptions(), &session);
-  if (!status.ok()) {
-    std::cout < < status.ToString() < < std::endl;
-    return 1;
-  }
-
-  // Read in the protobuf graph we exported                                                               
-  GraphDef graph_def;
-  status = ReadBinaryProto(Env::Default(), "/home/suzuki/LSTM_tsc-master/models/output_graph.pb", &graph_def);
-  if (!status.ok()) {
-    std::cout < < status.ToString() < < std::endl;
-    return 1;
-  }
-
+  abc();	
 
   return xIn;
    ', 
-  includes=c("#include <vector>", '#include "tensorflow/core/public/session.h" ',  '#include "tensorflow/core/platform/env."'),
   plugin="loader")
